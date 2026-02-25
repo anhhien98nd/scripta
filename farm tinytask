@@ -1,0 +1,224 @@
+-- 🌸 Control Panel (Acc1 + Acc2)
+-- Acc1: suykbyuay → auto bật chuột
+-- Acc2: lpoolalovolaca
+-- Cả 2: GUI cố định + có nút X + bật/tắt shield + reset player
+
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+
+-- === CONFIG ===
+local ACC1 = "GIOAIkickl"
+local ACC2 = "cdd8huoilp"
+
+local COORDS_ACC1 = Vector3.new(18.37334884643555, 2.37274569272994995, -140.72775268554688)
+local COORDS_ACC2 = Vector3.new(18.86713409423828, 2.37274569272994995, -114.86202239990234)
+local NEW_TP_COORDS = Vector3.new(31.83, 3.63, -121.76)
+-- =================
+
+-- Xác định acc và toạ độ tương ứng
+local currentCoords
+local isAcc1 = false
+
+if player.Name == ACC1 then
+    currentCoords = COORDS_ACC1
+    isAcc1 = true
+elseif player.Name == ACC2 then
+    currentCoords = COORDS_ACC2
+else
+    warn(("[⚠️] Tài khoản '%s' không được phép chạy script này."):format(player.Name))
+    return
+end
+
+-- === Kết nối remote shield ===
+local remote
+
+pcall(function()
+    local bridge = ReplicatedStorage:FindFirstChild("BridgeNet2")
+    if bridge then
+        remote = bridge:FindFirstChild("dataRemoteEvent")
+    end
+
+    if not remote then
+        for _, v in ipairs(ReplicatedStorage:GetDescendants()) do
+            if v.Name == "dataRemoteEvent" then
+                remote = v
+                break
+            end
+        end
+    end
+end)
+
+local function safeFireShield(state)
+    if remote then
+        pcall(function()
+            local args = {
+                [1] = {
+                    [1] = state,
+                    [2] = "\28"
+                }
+            }
+            remote:FireServer(unpack(args))
+            print("[AutoShield] 🛡️ Đã gửi yêu cầu:", state and "BẬT" or "TẮT")
+        end)
+    else
+        if not safeFireShield._warned then
+            safeFireShield._warned = true
+            warn("[AutoShield] Không tìm thấy dataRemoteEvent; không gửi được yêu cầu.")
+        end
+    end
+end
+
+-- === Xóa GUI cũ ===
+if game.CoreGui:FindFirstChild("ControlGui") then
+    game.CoreGui.ControlGui:Destroy()
+end
+
+-- === GUI ===
+local gui = Instance.new("ScreenGui")
+gui.Name = "ControlGui"
+gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
+
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+frame.Size = UDim2.new(0, 230, 0, 300)
+frame.Position = UDim2.new(0.05, 0, 0.2, 0)
+frame.Active = true
+frame.Draggable = false
+
+-- === Header ===
+local header = Instance.new("Frame", frame)
+header.Size = UDim2.new(1, 0, 0, 32)
+header.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+
+local title = Instance.new("TextLabel", header)
+title.Size = UDim2.new(1, -32, 1, 0)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Text = isAcc1 and "🌸 Delai Control (Acc1)" or "🌸 Tatcuako Control (Acc2)"
+
+-- === Close Button ===
+local closeBtn = Instance.new("TextButton", header)
+closeBtn.Size = UDim2.new(0, 30, 1, 0)
+closeBtn.Position = UDim2.new(1, -30, 0, 0)
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 18
+closeBtn.Text = "X"
+
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+    print("[ControlPanel] ❌ GUI đã bị xóa.")
+end)
+
+-- === Utility Button Generator ===
+local function makeButton(text, posY, color)
+    local btn = Instance.new("TextButton", frame)
+    btn.Size = UDim2.new(0.8, 0, 0, 34)
+    btn.Position = UDim2.new(0.1, 0, posY, 0)
+    btn.BackgroundColor3 = color or Color3.fromRGB(80, 80, 255)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.Text = text
+    btn.BorderColor3 = Color3.fromRGB(255, 255, 255)
+    return btn
+end
+
+-- === Buttons ===
+local tpBtn = makeButton("🚀 Teleport", 0.15)
+tpBtn.MouseButton1Click:Connect(function()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    hrp.CFrame = CFrame.new(currentCoords)
+    print(("[ControlPanel] ✅ %s đã dịch chuyển đến vị trí riêng."):format(player.Name))
+end)
+
+local mouseBtn = makeButton("🖱️ Bật Chuột", 0.28)
+mouseBtn.MouseButton1Click:Connect(function()
+    pcall(function()
+        UserInputService.MouseIconEnabled = true
+        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+    end)
+
+    RunService.RenderStepped:Connect(function()
+        pcall(function()
+            UserInputService.MouseIconEnabled = true
+            UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+        end)
+    end)
+
+    print("[ControlPanel] 🖱️ Chuột đã bật và giữ cố định.")
+end)
+
+local shieldOnBtn = makeButton("🛡️ Bật Shield", 0.41, Color3.fromRGB(100, 255, 100))
+shieldOnBtn.MouseButton1Click:Connect(function()
+    safeFireShield(true)
+end)
+
+local shieldOffBtn = makeButton("🛡️ Tắt Shield", 0.52, Color3.fromRGB(255, 100, 100))
+shieldOffBtn.MouseButton1Click:Connect(function()
+    safeFireShield(false)
+end)
+
+local rejoinBtn = makeButton("🔁 Rejoin Game", 0.63)
+rejoinBtn.MouseButton1Click:Connect(function()
+    print(("[ControlPanel] 🔁 %s đang rejoin..."):format(player.Name))
+    pcall(function()
+        TeleportService:Teleport(game.PlaceId, player)
+    end)
+end)
+
+local resetBtn = makeButton("🔄 Reset Player", 0.74, Color3.fromRGB(255, 200, 100))
+resetBtn.MouseButton1Click:Connect(function()
+    local char = player.Character
+    if char then
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.Health = 0
+        else
+            char:BreakJoints()
+        end
+    end
+end)
+
+local newTpBtn = makeButton("🌟 TP New Pos", 0.85, Color3.fromRGB(255, 150, 50))
+newTpBtn.MouseButton1Click:Connect(function()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    hrp.CFrame = CFrame.new(NEW_TP_COORDS)
+    print("[ControlPanel] 🌟 Đã dịch chuyển đến vị trí mới.")
+end)
+
+-- === Auto bật chuột ===
+task.defer(function()
+    task.wait(1)
+
+    pcall(function()
+        UserInputService.MouseIconEnabled = true
+        UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+    end)
+
+    RunService.RenderStepped:Connect(function()
+        pcall(function()
+            UserInputService.MouseIconEnabled = true
+            UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+        end)
+    end)
+
+    print("[ControlPanel] 🖱️ Chuột đã tự động bật cho tất cả acc.")
+end)
+
+print(("[🌸 ControlPanel] GUI đã sẵn sàng cho tài khoản: %s"):format(player.Name))
