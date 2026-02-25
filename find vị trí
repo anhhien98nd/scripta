@@ -1,0 +1,76 @@
+-- LocalScript
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "PositionGui"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 260, 0, 90)
+frame.Position = UDim2.new(0, 20, 0, 20)
+frame.BackgroundTransparency = 0.2
+frame.Parent = gui
+
+-- Label
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, -40, 0, 40)
+label.Position = UDim2.new(0, 10, 0, 10)
+label.BackgroundTransparency = 1
+label.TextScaled = true
+label.Font = Enum.Font.SourceSansBold
+label.Text = "Position: ..."
+label.Parent = frame
+
+-- Copy button
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(1, -20, 0, 30)
+button.Position = UDim2.new(0, 10, 0, 50)
+button.TextScaled = true
+button.Font = Enum.Font.SourceSans
+button.Text = "Copy Position"
+button.Parent = frame
+
+-- Close (X) button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 24, 0, 24)
+closeBtn.Position = UDim2.new(1, -30, 0, 6)
+closeBtn.Text = "X"
+closeBtn.TextScaled = true
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Parent = frame
+
+-- Update vị trí
+RunService.RenderStepped:Connect(function()
+	if hrp and hrp.Parent then
+		local p = hrp.Position
+		label.Text = string.format("X: %.1f  Y: %.1f  Z: %.1f", p.X, p.Y, p.Z)
+	end
+end)
+
+-- Copy
+button.MouseButton1Click:Connect(function()
+	if hrp and hrp.Parent and setclipboard then
+		local p = hrp.Position
+		local text = string.format("%.3f, %.3f, %.3f", p.X, p.Y, p.Z)
+		setclipboard(text)
+		button.Text = "Copied!"
+		task.delay(1, function()
+			button.Text = "Copy Position"
+		end)
+	end
+end)
+
+-- Close GUI
+closeBtn.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
