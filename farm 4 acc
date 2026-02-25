@@ -1,0 +1,71 @@
+-- 🌸 Auto Loader (4 user version)
+local Players = game:GetService("Players")
+local p = Players.LocalPlayer
+local username = p and p.Name or "Unknown"
+
+local userScripts = {
+	["pphiphieyqu"] = {
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/--lock%20v%E1%BB%8B%20tr%C3%AD%202",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/--tp%20c%E1%BB%95ng%202",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/Auto%20Spam%20M1-2",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/Shield%202"
+	},
+
+	["ulucasko"] = {
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/--tp%20c%E1%BB%95ng%201",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/Shield%201",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/Auto%20Spam%20M1-1",
+   		"https://raw.githubusercontent.com/anhhien98nd/REJOIN/refs/heads/main/reset-player",
+   		"https://raw.githubusercontent.com/anhhien98nd/REJOIN/refs/heads/main/rejoin.txt",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/--lock%20v%E1%BB%8B%20tr%C3%AD%201"
+	},
+
+	-- ✅✅ Acc mới (giống opbrnpen)
+	["3ewrrads"] = {
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/--lock%20v%E1%BB%8B%20tr%C3%AD%202-2",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/--tp%20c%E1%BB%95ng%202-2",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/Auto%20Spam%20M1-2-2",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/Shield%202-2"
+	},
+
+	-- ✅ Acc mới (giống 432resdasd)
+	["d2wedsx"] = {
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/--tp%20c%E1%BB%95ng%201-1",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/Shield%201-1",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/Auto%20Spam%20M1-1-1",
+   		"https://raw.githubusercontent.com/anhhien98nd/REJOIN/refs/heads/main/reset-player",
+   		"https://raw.githubusercontent.com/anhhien98nd/REJOIN/refs/heads/main/rejoin.txt",
+		"https://raw.githubusercontent.com/anhhien98nd/123/refs/heads/main/--lock%20v%E1%BB%8B%20tr%C3%AD%201-1"
+	}
+}
+
+local function safeLoad(url)
+	task.spawn(function()
+		local success, result = pcall(function()
+			local source = game:HttpGet(url)
+			if source and #source > 10 then
+				print("⚙️ Đang chạy script:", url)
+				loadstring(source)()
+			else
+				warn("⚠️ Script rỗng hoặc không tải được:", url)
+			end
+		end)
+		if not success then
+			warn("❌ Lỗi khi chạy script:", tostring(result))
+		end
+	end)
+end
+
+if userScripts[username] then
+	print("✅ Đăng nhập hợp lệ:", username)
+	print("📦 Bắt đầu tải script cho tài khoản:", username)
+
+	for _, url in ipairs(userScripts[username]) do
+		safeLoad(url)
+		task.wait(0.3)
+	end
+
+	print("✨ Hoàn tất tải toàn bộ script cho acc:", username)
+else
+	warn("🚫 Người dùng '" .. username .. "' không được phép. Script sẽ không chạy.")
+end
