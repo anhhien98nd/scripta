@@ -1,0 +1,10 @@
+local args = {
+	{
+		{
+			buffer.fromstring("\019\000\000\0000201000111184335617\000"),
+			game:GetService("Players"):WaitForChild("pphiphieyqu").Character
+		},
+		"\023"
+	}
+}
+game:GetService("ReplicatedStorage"):WaitForChild("BridgeNet2"):WaitForChild("dataRemoteEvent"):FireServer(unpack(args))
