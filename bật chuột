@@ -1,0 +1,38 @@
+-- Cursor Unlocker for All Players (LocalScript)
+-- Bật lại trỏ chuột cho tất cả người chơi
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+repeat task.wait() until player
+
+local FORCE_KEEP = true
+local PRINT_LOG = true
+
+local function log(...)
+	if PRINT_LOG then print("[CursorUnlocker]", ...) end
+end
+
+local function enableCursor()
+	pcall(function()
+		UserInputService.MouseIconEnabled = false
+		UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+	end)
+	log("Cursor enabled (free movement)")
+end
+
+-- Bật chuột 1 lần
+enableCursor()
+
+-- Giữ liên tục (chống game tắt lại)
+if FORCE_KEEP then
+	RunService.RenderStepped:Connect(function()
+		pcall(function()
+			UserInputService.MouseIconEnabled = true
+			UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+		end)
+	end)
+	log("Cursor enforcement active (RenderStepped loop)")
+end
